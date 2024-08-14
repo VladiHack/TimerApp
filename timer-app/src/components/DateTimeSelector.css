@@ -1,0 +1,47 @@
+/* Define the background gradient animation */
+@keyframes backgroundGradient {
+    0% { background: linear-gradient(135deg, #1a202c, #2d3748); }
+    50% { background: linear-gradient(135deg, #2a2d35, #1a202c); }
+    100% { background: linear-gradient(135deg, #1a202c, #2d3748); }
+  }
+  
+  /* Define styles for the container */
+  .date-time-selector-container {
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    background-color: #2d3748;
+    border: 1px solid #4a5568;
+    animation: backgroundGradient 15s infinite;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: var(--max-width, 100%);
+    margin: 0 auto;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* Define styles for the footer */
+  .date-time-selector-footer {
+    padding: 1rem;
+    background-color: #2d3748;
+    color: #e2e8f0;
+    text-align: center;
+    border-top: 1px solid #4a5568;
+  }
+  
+  /* Additional styles for alignment and spacing */
+  .date-time-selector-header {
+    margin-bottom: 1.5rem;
+  }
+  
+  .date-time-selector-header-text {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #f6ad55;
+  }
+  
+  .date-time-selector-subtext {
+    font-size: 1.125rem;
+    color: #edf2f7;
+  }
+  
