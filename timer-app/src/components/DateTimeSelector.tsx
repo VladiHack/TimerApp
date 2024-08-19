@@ -1,18 +1,16 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Box, Text, Button, VStack, HStack, useBreakpointValue } from '@chakra-ui/react';
+import { Box, Text, VStack, HStack, useBreakpointValue } from '@chakra-ui/react';
 import DateInput from './DateInput';
-import TimeInput from './TimeInput';
 import ResultDisplay from './ResultDisplay';
-import { CalendarIcon, TimeIcon } from '@chakra-ui/icons';
+import { CalendarIcon } from '@chakra-ui/icons';
 import './DateTimeSelector.css'; // Import the CSS file
+import { ChosenDate } from '../../public/classes/ChosenDate';
 
 const DateTimeSelector: React.FC = () => {
   const [date, setDate] = useState<string>(new Date().toISOString().split('T')[0]);
-  const [time, setTime] = useState<string>(new Date().toTimeString().split(' ')[0].substring(0, 8));
   const [timeRemaining, setTimeRemaining] = useState<string>("");
-  const [dateStatus, setDateStatus] = useState<string>("");
 
   useEffect(() => {
     document.body.style.backgroundColor = '#1a202c'; // Dark background color
@@ -20,63 +18,37 @@ const DateTimeSelector: React.FC = () => {
   }, []);
 
   const calculateTimeRemaining = () => {
-    const now = new Date();
-    const targetDateTime = new Date(`${date}T${time}`);
-    const difference = targetDateTime.getTime() - now.getTime();
+    const now = new Date().getTime();
+    const difference = Math.abs(new ChosenDate(date).getDate().getTime() - now);
 
-    const absDifference = Math.abs(difference);
-
-    const totalSeconds = Math.floor(absDifference / 1000);
-    const seconds = totalSeconds % 60;
-    const totalMinutes = Math.floor(totalSeconds / 60);
-    const minutes = totalMinutes % 60;
-    const totalHours = Math.floor(totalMinutes / 60);
-    const hours = totalHours % 24;
-    const totalDays = Math.floor(totalHours / 24);
-    const days = totalDays % 30; // Approximate months
-    const months = Math.floor(totalDays / 30); // Approximate months
-    const years = Math.floor(months / 12);
-
-    const timeUnits = [
-      { label: 'Years', value: years, icon: '📅' },
-      { label: 'Months', value: months % 12, icon: '🗓️' },
-      { label: 'Days', value: days, icon: '📆' },
-      { label: 'Hours', value: hours, icon: '⏰' },
-      { label: 'Minutes', value: minutes, icon: '⌛' },
-      { label: 'Seconds', value: seconds, icon: '⏳' }
+    const units = [
+        { label: 'Years', value: Math.floor(difference / (1000 * 60 * 60 * 24 * 365)), icon: '📅' },
+        { label: 'Months', value: Math.floor(difference / (1000 * 60 * 60 * 24 * 30)) % 12, icon: '🗓️' },
+        { label: 'Days', value: Math.floor(difference / (1000 * 60 * 60 * 24)) % 30, icon: '📆' },
+        { label: 'Hours', value: Math.floor(difference / (1000 * 60 * 60)) % 24, icon: '⏰' },
+        { label: 'Minutes', value: Math.floor(difference / (1000 * 60)) % 60, icon: '⌛' },
+        { label: 'Seconds', value: Math.floor(difference / 1000) % 60, icon: '⏳' }
     ];
 
-    const resultText = timeUnits
-      .filter(unit => unit.value > 0)
-      .map(unit => `${unit.icon} ${unit.value} ${unit.label}`)
-      .join(', ');
+    const resultText = units
+        .filter(unit => unit.value > 0)
+        .map(unit => `${unit.icon} ${unit.value} ${unit.label}`)
+        .join(', ');
 
     setTimeRemaining(resultText);
+};
 
-    if (difference < 0) {
-      setDateStatus("Passed Date");
-    } else {
-      setDateStatus("Upcoming Date");
-    }
-  };
 
   useEffect(() => {
     calculateTimeRemaining();
     const timer = setInterval(calculateTimeRemaining, 1000);
     return () => clearInterval(timer);
-  }, [date, time]);
+  }, [date]);
 
   const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setDate(event.target.value);
   };
 
-  const handleTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setTime(event.target.value);
-  };
-
-  const handleSubmit = () => {
-    calculateTimeRemaining();
-  };
 
   const maxW = useBreakpointValue({
     base: 'full',
@@ -85,6 +57,24 @@ const DateTimeSelector: React.FC = () => {
     lg: 'xl',
     xl: '2xl'
   });
+   
+  function getDateStatus(targetDate:Date): string  
+  {
+    const currentDate=new Date();
+
+    if  (targetDate>currentDate){
+      return 'Upcoming Date';
+    }
+    else if (targetDate.getDate() == currentDate.getDate())
+    {
+      return 'Current Date';
+    }
+    return 'Passed Date';
+  }  
+
+
+   const targetDate=new ChosenDate(date).getDate();
+   const dateStatus=getDateStatus(targetDate);
 
   return (
     <Box className="date-time-selector-container" maxW={maxW}>
@@ -99,11 +89,14 @@ const DateTimeSelector: React.FC = () => {
           <CalendarIcon w={8} h={8} color="orange.300" mt={8} />
           <DateInput date={date} onChange={handleDateChange} />
         </HStack>
-        <HStack spacing={3} align="center" mb={6}>
-          <TimeIcon w={8} h={8} color="orange.300" mt={8} />
-          <TimeInput time={time} onChange={handleTimeChange} />
-        </HStack>
-        <Text fontSize="2xl" fontWeight="bold" textAlign="center" color={dateStatus === "Passed Date" ? "red.400" : "green.400"}>
+         <Text fontSize="2xl" fontWeight="bold" textAlign="center" 
+         color={
+          dateStatus === "Passed Date" ?
+           "red.400" : 
+            dateStatus === "Current Date"
+            ? "blue.400" : 
+            " green.400"
+          }>
           {dateStatus}
         </Text>
         {timeRemaining && <ResultDisplay timeRemaining={timeRemaining} />}

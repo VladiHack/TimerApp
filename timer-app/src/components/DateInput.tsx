@@ -7,6 +7,8 @@ interface DateInputProps {
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
+
+
 const DateInput: React.FC<DateInputProps> = ({ date, onChange }) => (
   <FormControl>
     <FormLabel htmlFor="date" fontSize="lg" fontWeight="semibold" color="orange.300">
