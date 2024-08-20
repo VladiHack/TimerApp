@@ -6,7 +6,6 @@ import DateInput from './DateInput';
 import ResultDisplay from './ResultDisplay';
 import { CalendarIcon } from '@chakra-ui/icons';
 import './DateTimeSelector.css'; // Import the CSS file
-import { ChosenDate } from '../../public/classes/ChosenDate';
 
 const DateTimeSelector: React.FC = () => {
   const [date, setDate] = useState<string>(new Date().toISOString().split('T')[0]);
@@ -17,9 +16,15 @@ const DateTimeSelector: React.FC = () => {
     document.body.style.color = 'white'; // Light text color for contrast
   }, []);
 
+  function useChosenDate(chosenDate:string) : Date{
+    const timeMidnight='00:00:00';
+        return new Date(`${chosenDate}T${timeMidnight}`);
+  }
+
+
   const calculateTimeRemaining = () => {
     const now = new Date().getTime();
-    const difference = Math.abs(new ChosenDate(date).getDate().getTime() - now);
+    const difference = Math.abs(useChosenDate(date).getTime() - now);
 
     const units = [
         { label: 'Years', value: Math.floor(difference / (1000 * 60 * 60 * 24 * 365)), icon: '📅' },
@@ -73,7 +78,7 @@ const DateTimeSelector: React.FC = () => {
   }  
 
 
-   const targetDate=new ChosenDate(date).getDate();
+   const targetDate= useChosenDate(date);
    const dateStatus=getDateStatus(targetDate);
 
   return (
